@@ -1,5 +1,6 @@
 export const siteConfig = {
   name: 'Financial',
+  blogId: 'financial',
   author: {
     name: 'MingRay',
     role: 'Full-Stack Engineer',
