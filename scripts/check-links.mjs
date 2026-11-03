@@ -2,7 +2,7 @@ import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 
 const outputDirectory = path.resolve('dist');
-const configuredBase = process.env.SITE_BASE ?? '/';
+const configuredBase = process.env.SITE_BASE ?? '/mr-financial-blog';
 const siteBase = `/${configuredBase.replace(/^\/+|\/+$/gu, '')}/`.replace(
   /^\/\/$/u,
   '/',

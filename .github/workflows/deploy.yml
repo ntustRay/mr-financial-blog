@@ -1,6 +1,8 @@
 name: Deploy to GitHub Pages
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -14,11 +16,8 @@ concurrency:
 
 jobs:
   build:
-    if: vars.ENABLE_GITHUB_PAGES == 'true'
     runs-on: ubuntu-latest
     env:
-      SITE_URL: https://ntustray.github.io
-      SITE_BASE: /mr-financial-blog
       PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.PUBLIC_GOOGLE_SITE_VERIFICATION }}
     steps:
       - name: Checkout

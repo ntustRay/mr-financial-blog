@@ -1,8 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "astro",
-  "buildCommand": "npm run check:taxonomy && npm run build && npm run check:seo",
-  "outputDirectory": "dist",
-  "installCommand": "npm ci --no-audit --no-fund",
-  "trailingSlash": true
-}

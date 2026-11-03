@@ -5,8 +5,8 @@
 - Astro + TypeScript static blog copied from `ntustRay/mr-blog`.
 - Author: MingRay, Full-Stack Engineer. Site name: Financial.
 - Keep the original mr-blog layout, components, fonts, spacing, responsive rules, and CSS. Only colour values may differ unless explicitly requested.
-- Source repository stays private. Vercel serves the public static site.
-- `SITE_URL` and `SITE_BASE` may override production URLs for another host.
+- Source repository is public. GitHub Pages serves the public static site.
+- The canonical origin is `https://ntustray.github.io`; `SITE_BASE` defaults to `/mr-financial-blog`.
 
 ## Content boundary
 

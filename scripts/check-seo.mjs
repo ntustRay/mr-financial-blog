@@ -2,8 +2,8 @@ import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const dist = path.resolve('dist');
-const origin = process.env.SITE_URL ?? 'https://mr-financial-blog.vercel.app';
-const configuredBase = process.env.SITE_BASE ?? '/';
+const origin = 'https://ntustray.github.io';
+const configuredBase = process.env.SITE_BASE ?? '/mr-financial-blog';
 const base = configuredBase === '/' ? '/' : `/${configuredBase.replace(/^\/+|\/+$/gu, '')}/`;
 const websiteUrl = new URL(base, origin).href;
 const authorUrl = new URL(`${base}about/`, origin).href;

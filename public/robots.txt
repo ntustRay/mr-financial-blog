@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mr-financial-blog.vercel.app/sitemap-index.xml
+Sitemap: https://ntustray.github.io/mr-financial-blog/sitemap-index.xml

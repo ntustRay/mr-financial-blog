@@ -33,11 +33,11 @@ Build 包含 Pagefind 搜尋索引與站內連結檢查。首頁、分類、Tags
 
 ## 部署
 
-Private GitHub Repo + Vercel Git integration，main 更新後自動部署。`vercel.json` 先驗證分類，再 Build、驗證連結與 SEO。
+Public GitHub Repo + GitHub Pages，main 更新後自動部署。部署 Workflow 沿用 mr-blog 的 Astro Build 與 Pages 發布流程。
 
-預設 origin 為 `https://mr-financial-blog.vercel.app`、base 為 `/`。另行託管時可設定 `SITE_URL` 與 `SITE_BASE`。
+首次設定：Repository → Settings → Pages → Source 選 **GitHub Actions**。之後 push main 即會發布。
 
-保留 GitHub Pages 的手動 Workflow 作為選項。使用前先設定 Pages，再建立 Repository variable `ENABLE_GITHUB_PAGES=true`；Workflow 會使用 `/mr-financial-blog` base。
+正式站：`https://ntustray.github.io/mr-financial-blog/`。預設 base 為 `/mr-financial-blog`；本機測試 root-path 可用 `SITE_BASE=/ npm run build`。
 
 留言使用 mr-blog 的既有 public Discussions backend，沿用穩定 `posts/<post.id>` term，保留舊文章的留言。giscus 的允許 origin 設定由 mr-blog 的 `giscus.json` 管理。Private source Repo 不作為公開留言儲存庫。
 

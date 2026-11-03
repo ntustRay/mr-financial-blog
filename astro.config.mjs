@@ -25,8 +25,8 @@ const codeBlockMetaTransformer = {
 };
 
 export default defineConfig({
-  site: process.env.SITE_URL ?? 'https://mr-financial-blog.vercel.app',
-  base: process.env.SITE_BASE ?? '/',
+  site: 'https://ntustray.github.io',
+  base: process.env.SITE_BASE ?? '/mr-financial-blog',
   trailingSlash: 'always',
   integrations: [
     sitemap({

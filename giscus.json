@@ -1,7 +1,4 @@
 {
-  "origins": [
-    "https://ntustray.github.io",
-    "https://mr-financial-blog.vercel.app"
-  ],
+  "origins": ["https://ntustray.github.io"],
   "defaultCommentOrder": "oldest"
 }
