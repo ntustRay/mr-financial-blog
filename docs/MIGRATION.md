@@ -17,7 +17,7 @@ Preserve the filenames, titles, dates, prose, historical notices and referenced 
 
 ## Retained in mr-blog
 
-- All 10 engineer-stock technical tutorials and their series landing page.
+- All engineer-stock technical tutorials and their series landing page.
 - All job search, interview, salary-platform and programming articles.
 - The mixed landlord/employer/internship article.
 - BMI/BMR/TDEE article because it includes a JavaScript implementation.

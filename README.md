@@ -29,7 +29,7 @@ Build 包含 Pagefind 搜尋索引與站內連結檢查。首頁、分類、Tags
 - `src/config/series.ts`：保留 Series 擴充點，目前無系列。
 - `docs/MIGRATION.md`：搬移與保留規則。
 
-與求職、面試、code 有關的文章留在 mr-blog。工程師選股網只有一篇使用指南；10 篇技術教學仍在原站。
+與求職、面試、code 有關的文章留在 mr-blog。工程師選股網只有一篇使用指南；全部技術教學仍在原站。
 
 ## 部署
 

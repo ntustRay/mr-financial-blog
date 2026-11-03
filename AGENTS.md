@@ -12,7 +12,7 @@
 
 - Publish money and life content unrelated to job applications or coding.
 - Job search, interview preparation, programming, and technical tutorials stay in `mr-blog`.
-- The 10-part engineer-stock technical series stays in mr-blog. Financial has one user-facing overview and usage guide, linking to that series.
+- The engineer-stock technical series stays in mr-blog. Financial has one user-facing overview and usage guide, linking to that series.
 - Do not move an article merely because it mentions money or stocks. Classify by its purpose and actual content.
 - Imported articles retain their filenames, titles, dates, and prose. Category may be mapped to this site's taxonomy. Preserve historical notices.
 - Use exactly one title prefix: `[News]`, `[Guide]`, `[Insight]`, or `[Review]`.

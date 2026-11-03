@@ -14,7 +14,7 @@ references:
     url: "https://ntustray.github.io/mr-blog/series/engineer-stock/"
 ---
 
-[開啟工程師選股網](https://engineer-stock-web.vercel.app/)。先看資料日期，再查股票、設定條件與比較公司；追蹤清單需要登入。這篇只整理操作方式，程式與架構留在 [MR Blog 的 10 篇技術教學](https://ntustray.github.io/mr-blog/series/engineer-stock/)。
+[開啟工程師選股網](https://engineer-stock-web.vercel.app/)。先看資料日期，再查股票、設定條件與比較公司；追蹤清單需要登入。這篇只整理操作方式，程式與架構留在 [MR Blog 的完整技術系列](https://ntustray.github.io/mr-blog/series/engineer-stock/)。
 
 ## 先看這三個地方
 
