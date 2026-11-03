@@ -1,0 +1,125 @@
+import { readdir, readFile } from 'node:fs/promises';
+import path from 'node:path';
+
+const dist = path.resolve('dist');
+const origin = process.env.SITE_URL ?? 'https://mr-financial-blog.vercel.app';
+const configuredBase = process.env.SITE_BASE ?? '/';
+const base = configuredBase === '/' ? '/' : `/${configuredBase.replace(/^\/+|\/+$/gu, '')}/`;
+const websiteUrl = new URL(base, origin).href;
+const authorUrl = new URL(`${base}about/`, origin).href;
+const websiteId = `${websiteUrl}#website`;
+const authorId = `${authorUrl}#person`;
+const errors = [];
+const htmlFiles = [];
+
+async function walk(dir) {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) await walk(full);
+    else if (full.endsWith('.html')) htmlFiles.push(full);
+  }
+}
+
+function extractTag(html, tag, attribute, value) {
+  return [...html.matchAll(new RegExp(`<${tag}\\b[^>]*>`, 'giu'))]
+    .map(([match]) => match)
+    .find((match) => new RegExp(`\\b${attribute}="${value}"`, 'iu').test(match));
+}
+
+function attribute(tag, name) {
+  return tag?.match(new RegExp(`\\b${name}="([^"]*)"`, 'iu'))?.[1];
+}
+
+await walk(dist);
+const siteMapFiles = (await readdir(dist)).filter((file) => /^sitemap-\d+\.xml$/u.test(file));
+if (siteMapFiles.length === 0) errors.push('No sitemap-N.xml files generated.');
+const sitemapUrls = new Set();
+for (const file of siteMapFiles) {
+  const xml = await readFile(path.join(dist, file), 'utf8');
+  for (const [, loc] of xml.matchAll(/<loc>([^<]+)<\/loc>/gu)) {
+    sitemapUrls.add(loc.replaceAll('&amp;', '&'));
+  }
+}
+
+let articles = 0;
+for (const file of htmlFiles) {
+  const html = await readFile(file, 'utf8');
+  const relative = path.relative(dist, file).replaceAll(path.sep, '/');
+  // Google Search Console 驗證檔不是網頁，不應要求 title / canonical / description。
+  if (/^google[0-9a-f]+\.html$/u.test(relative)) continue;
+  const route = relative === 'index.html' ? '' : relative.replace(/index\.html$/u, '');
+  const expectedUrl = new URL(`${base}${route}`, origin).href;
+  const canonical = attribute(extractTag(html, 'link', 'rel', 'canonical'), 'href');
+  const title = html.match(/<title>([\s\S]*?)<\/title>/iu)?.[1]?.trim();
+  const description = attribute(extractTag(html, 'meta', 'name', 'description'), 'content');
+  const robots = attribute(extractTag(html, 'meta', 'name', 'robots'), 'content') ?? '';
+  const noindex = /\bnoindex\b/iu.test(robots);
+  if (canonical !== expectedUrl) errors.push(`${relative}: canonical expected ${expectedUrl}, got ${canonical}`);
+  if (!title) errors.push(`${relative}: missing title`);
+  if (!description) errors.push(`${relative}: missing meta description`);
+  if ([...html.matchAll(/<h1\b/giu)].length !== 1) errors.push(`${relative}: expected one H1`);
+  if (attribute(extractTag(html, 'meta', 'property', 'og:url'), 'content') !== expectedUrl) {
+    errors.push(`${relative}: Open Graph URL does not match canonical`);
+  }
+  const ogLocale = attribute(extractTag(html, 'meta', 'property', 'og:locale'), 'content');
+  if (!/^[a-z]{2}_[A-Z]{2}$/u.test(ogLocale ?? '')) errors.push(`${relative}: invalid Open Graph locale`);
+  if (relative === 'search/index.html' && !noindex) errors.push('Search page must be noindex.');
+  if (noindex && sitemapUrls.has(expectedUrl)) errors.push(`${relative}: noindex page in sitemap`);
+  const jsonLd = html.match(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/iu)?.[1];
+  try {
+    const parsed = JSON.parse(jsonLd ?? '');
+    const nodes = Array.isArray(parsed) ? parsed : [parsed];
+    const website = nodes.find((node) => node['@type'] === 'WebSite');
+    const person = nodes.find((node) => node['@type'] === 'Person');
+    if (website?.['@id'] !== websiteId || website?.url !== websiteUrl) {
+      errors.push(`${relative}: missing or mismatched WebSite identity`);
+    }
+    if (person?.['@id'] !== authorId || person?.url !== authorUrl || !person?.name) {
+      errors.push(`${relative}: missing or mismatched author identity`);
+    }
+    if (website?.publisher?.['@id'] !== authorId) errors.push(`${relative}: WebSite publisher is not the author`);
+    if (relative === 'about/index.html') {
+      const profile = nodes.find((node) => node['@type'] === 'ProfilePage');
+      if (profile?.url !== expectedUrl || profile?.mainEntity?.['@id'] !== authorId) {
+        errors.push(`${relative}: profile does not identify the article author`);
+      }
+    }
+    if (!route.startsWith('posts/')) continue;
+
+    articles++;
+    if (!sitemapUrls.has(expectedUrl)) errors.push(`${relative}: article missing from sitemap`);
+    const blog = nodes.find((node) => node['@type'] === 'BlogPosting');
+    const breadcrumbs = nodes.find((node) => node['@type'] === 'BreadcrumbList');
+    if (blog?.url !== expectedUrl || blog?.['@id'] !== `${expectedUrl}#article`) {
+      errors.push(`${relative}: missing or mismatched BlogPosting`);
+    }
+    if (blog?.mainEntityOfPage !== expectedUrl || blog?.isPartOf?.['@id'] !== websiteId) {
+      errors.push(`${relative}: article is not connected to its canonical page and WebSite`);
+    }
+    if (blog?.author?.['@id'] !== authorId || blog?.author?.url !== authorUrl || blog?.author?.name !== person?.name) {
+      errors.push(`${relative}: article author does not match the profile`);
+    }
+    const visibleAuthor = extractTag(html, 'a', 'rel', 'author');
+    if (attribute(visibleAuthor, 'href') !== `${base}about/`) errors.push(`${relative}: missing visible author profile link`);
+    const visibleLinks = new Set(
+      [...html.matchAll(/<a\b[^>]*\bhref="([^"]+)"/giu)]
+        .map(([, href]) => href.replaceAll('&amp;', '&')),
+    );
+    for (const citation of blog?.citation ?? []) {
+      if (citation['@type'] !== 'CreativeWork' || !citation.name || !visibleLinks.has(citation.url)) {
+        errors.push(`${relative}: structured citation is not a visible named reference`);
+      }
+    }
+    if (!blog?.datePublished || !blog?.dateModified) errors.push(`${relative}: missing article dates`);
+    if (!breadcrumbs || breadcrumbs.itemListElement?.length < 2) errors.push(`${relative}: missing BreadcrumbList`);
+  } catch {
+    errors.push(`${relative}: invalid JSON-LD`);
+  }
+}
+
+if (errors.length) {
+  console.error(`SEO checks failed (${errors.length}):\n${errors.map((error) => `- ${error}`).join('\n')}`);
+  process.exitCode = 1;
+} else {
+  console.log(`SEO checks passed for ${htmlFiles.length} HTML pages, ${articles} articles and ${sitemapUrls.size} sitemap URLs.`);
+}

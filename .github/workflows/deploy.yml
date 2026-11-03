@@ -1,0 +1,47 @@
+name: Deploy to GitHub Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: vars.ENABLE_GITHUB_PAGES == 'true'
+    runs-on: ubuntu-latest
+    env:
+      SITE_URL: https://ntustray.github.io
+      SITE_BASE: /mr-financial-blog
+      PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.PUBLIC_GOOGLE_SITE_VERIFICATION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install CJK font
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk
+
+      - name: Install, build, and upload
+        uses: withastro/action@v6
+        with:
+          node-version: 24
+          package-manager: npm@latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

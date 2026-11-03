@@ -1,0 +1,79 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import CategoryLink from '../../components/CategoryLink.astro';
+import TagList from '../../components/TagList.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate } from '../../utils/date';
+import { getTagSlug, normalizeTag, historicalTagRedirects } from '../../utils/tags';
+
+interface TagGroup {
+  tag: string;
+  posts: CollectionEntry<'blog'>[];
+}
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  const groups = new Map<string, TagGroup>();
+  for (const post of posts) {
+    for (const tag of new Set(post.data.tags.map(normalizeTag))) {
+      const slug = getTagSlug(tag);
+      const group = groups.get(slug);
+      if (group) group.posts.push(post);
+      else groups.set(slug, { tag, posts: [post] });
+    }
+  }
+  const canonical = [...groups.entries()].map(([slug, group]) => ({
+    params: { tag: slug },
+    props: {
+      tag: group.tag,
+      posts: [...group.posts].sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()),
+      redirectTo: null as string | null,
+    },
+  }));
+  const aliases = Object.entries(historicalTagRedirects)
+    .filter(([old, newer]) => !groups.has(old) && groups.has(newer))
+    .map(([old, newer]) => ({
+      params: { tag: old },
+      props: { tag: old, posts: [] as CollectionEntry<'blog'>[], redirectTo: newer },
+    }));
+  return [...canonical, ...aliases];
+}
+
+interface Props {
+  tag: string;
+  posts: CollectionEntry<'blog'>[];
+  redirectTo: string | null;
+}
+const { tag, posts, redirectTo } = Astro.props;
+const base = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+---
+
+<BaseLayout title={`#${tag}`} description={`整理與 ${tag} 相關的文章。`} noindex={Boolean(redirectTo)}>
+  <section class="page-header">
+    <p class="eyebrow">TAG</p>
+    <h1>#{tag}</h1>
+    {redirectTo ? (
+      <p>此標籤已合併。<a href={`${base}tags/${redirectTo}/`}>前往新版標籤 →</a></p>
+    ) : (
+      <p>{posts.length} 篇文章</p>
+    )}
+  </section>
+  {!redirectTo && (
+    <div class="post-list">
+      {posts.map((post) => (
+        <article class="post-card">
+          <div class="post-meta">
+            <CategoryLink category={post.data.category} />
+            <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+            <TagList tags={post.data.tags} limit={2} />
+          </div>
+          <h3><a href={`${base}posts/${post.id}/`}>{post.data.title}</a></h3>
+          <p>{post.data.description}</p>
+          <a class="read-more" href={`${base}posts/${post.id}/`}>閱讀文章 →</a>
+        </article>
+      ))}
+    </div>
+  )}
+</BaseLayout>

@@ -1,0 +1,77 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import CategoryLink from '../../components/CategoryLink.astro';
+import TagList from '../../components/TagList.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { categories, legacyCategories, type CategoryName } from '../../config/taxonomy';
+import { getCategorySlug } from '../../utils/categories';
+import { formatDate } from '../../utils/date';
+
+interface Props {
+  category: string;
+  description: string;
+  posts: CollectionEntry<'blog'>[];
+  destinations?: CategoryName[];
+}
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  const current = categories.map((category) => ({
+    params: { category: getCategorySlug(category.name) },
+    props: {
+      category: category.name,
+      description: category.description,
+      posts: posts.filter((post) => post.data.category === category.name)
+        .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()),
+    },
+  }));
+  const old = Object.entries(legacyCategories).map(([slug, legacy]) => ({
+    params: { category: slug },
+    props: {
+      category: legacy.name,
+      description: '此分類已重新整理，請從下方對應的主題繼續瀏覽。',
+      posts: [] as CollectionEntry<'blog'>[],
+      destinations: legacy.destinations,
+    },
+  }));
+  return [...current, ...old];
+}
+
+const { category, description, posts, destinations } = Astro.props;
+const base = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+---
+
+<BaseLayout title={category} description={description} noindex={Boolean(destinations)}>
+  <section class="page-header">
+    <p class="eyebrow">CATEGORY</p>
+    <h1>{category}</h1>
+    <p>{description}</p>
+    {!destinations && <p>{posts.length} 篇文章</p>}
+  </section>
+  {destinations ? (
+    <div class="category-grid">
+      {destinations.map((name) => (
+        <a class="category-card" href={`${base}categories/${getCategorySlug(name)}/`}>
+          <strong>{name}</strong><span>前往新版分類 →</span>
+        </a>
+      ))}
+    </div>
+  ) : (
+    <div class="post-list">
+      {posts.map((post) => (
+        <article class="post-card">
+          <div class="post-meta">
+            <CategoryLink category={post.data.category} />
+            <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+            <TagList tags={post.data.tags} limit={2} />
+          </div>
+          <h3><a href={`${base}posts/${post.id}/`}>{post.data.title}</a></h3>
+          <p>{post.data.description}</p>
+          <a class="read-more" href={`${base}posts/${post.id}/`}>閱讀文章 →</a>
+        </article>
+      ))}
+    </div>
+  )}
+</BaseLayout>

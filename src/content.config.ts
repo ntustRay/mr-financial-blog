@@ -1,0 +1,40 @@
+import { defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
+import { isCategory } from './config/taxonomy';
+import { getSeriesDefinition } from './config/series';
+import { normalizeTag } from './utils/tags';
+
+const blog = defineCollection({
+  loader: glob({
+    base: './src/content/blog',
+    pattern: '**/*.{md,mdx}',
+  }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    seoTitle: z.string().trim().min(1).max(70).optional(),
+    pubDate: z.coerce.date(),
+    updatedDate: z.coerce.date().optional(),
+    tags: z.array(z.string()).default([]).transform((tags) => [...new Set(tags.map(normalizeTag))]),
+    category: z.string().trim().min(1).refine(isCategory, 'Unknown category'),
+    series: z.string().refine((value) => Boolean(getSeriesDefinition(value))).optional(),
+    seriesOrder: z.number().int().positive().optional(),
+    coverImage: z
+      .string()
+      .regex(/\.webp(?:[?#].*)?$/iu, 'coverImage must use WebP')
+      .optional(),
+    references: z
+      .array(
+        z.object({
+          title: z.string().trim().min(1),
+          url: z.string().url(),
+        }),
+      )
+      .default([]),
+    relatedPostIds: z.array(z.string().trim().min(1)).default([]),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { blog };

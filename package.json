@@ -1,0 +1,29 @@
+{
+  "name": "mr-financial-blog",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && pagefind --site dist && npm run check:links",
+    "check:links": "node scripts/check-links.mjs",
+    "check:seo": "node scripts/check-seo.mjs",
+    "lighthouse": "lhci autorun",
+    "preview": "astro preview",
+    "astro": "astro",
+    "check:taxonomy": "node scripts/check-taxonomy.mjs"
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.3.8"
+  },
+  "devDependencies": {
+    "@lhci/cli": "^0.15.1",
+    "pagefind": "^1.5.2",
+    "sharp": "^0.35.5"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

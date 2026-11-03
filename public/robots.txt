@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mr-financial-blog.vercel.app/sitemap-index.xml

@@ -1,0 +1,60 @@
+---
+import { siteConfig } from '../config/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const base = import.meta.env.BASE_URL.endsWith('/')
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+const profileURL = new URL(
+  `${base}${siteConfig.author.profilePath}`,
+  Astro.site ?? Astro.url.origin,
+);
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  '@id': `${profileURL.href}#profile`,
+  url: profileURL.href,
+  name: `關於 ${siteConfig.author.name} 與 ${siteConfig.name}`,
+  inLanguage: siteConfig.locale,
+  isPartOf: {
+    '@id': `${new URL(base, Astro.site ?? Astro.url.origin).href}#website`,
+  },
+  mainEntity: { '@id': `${profileURL.href}#person` },
+};
+---
+
+<BaseLayout
+  title="關於"
+  description="關於 MingRay 與 Financial：金錢、居住與生活決策的整理。"
+  structuredData={structuredData}
+>
+  <article class="content-page">
+    <header class="page-header">
+      <p class="eyebrow">ABOUT</p>
+      <h1>關於 Financial</h1>
+      <p>把金錢與生活問題，整理成之後仍然找得到、用得上的筆記。</p>
+    </header>
+
+    <div class="prose">
+      <h2>我是 MingRay</h2>
+      <p>
+        我是一名 {siteConfig.author.role}。這裡整理股票研究工具、租屋與生活資訊；程式、面試與技術教學保留在 MR Blog。
+      </p>
+      <p>
+        文章保留資料來源、適用時間與使用限制。舊活動與歷史心得會標示原來的時間，避免被誤讀為目前仍適用。
+      </p>
+
+      <h2>內容原則</h2>
+      <ul>
+        <li>引用可查證的資料，保留原始來源與日期。</li>
+        <li>清楚區分經驗、推論與外部資料。</li>
+        <li>保留 trade-off，不把特定情境的選擇寫成唯一答案。</li>
+        <li>維持簡單、快速且容易長期更新的閱讀體驗。</li>
+      </ul>
+
+      <p>
+        技術文章請看 <a href="https://ntustray.github.io/mr-blog/">MR Blog</a>；公開專案在 <a href={siteConfig.author.url}>GitHub</a>，也可透過<a href="../contact/">聯絡頁面</a>提供文章建議。
+      </p>
+    </div>
+  </article>
+</BaseLayout>

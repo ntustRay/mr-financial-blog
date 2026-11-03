@@ -1,0 +1,84 @@
+<script>
+  const languageLabels: Record<string, string> = {
+    bash: 'Bash',
+    css: 'CSS',
+    html: 'HTML',
+    javascript: 'JavaScript',
+    js: 'JavaScript',
+    json: 'JSON',
+    jsx: 'JSX',
+    markdown: 'Markdown',
+    md: 'Markdown',
+    shell: 'Shell',
+    sh: 'Shell',
+    sql: 'SQL',
+    text: 'Text',
+    ts: 'TypeScript',
+    tsx: 'TSX',
+    typescript: 'TypeScript',
+    yaml: 'YAML',
+    yml: 'YAML',
+  };
+
+  for (const pre of document.querySelectorAll<HTMLElement>('.prose pre')) {
+    if (pre.dataset.codeEnhanced === 'true') {
+      continue;
+    }
+
+    const code = pre.querySelector('code');
+    if (!code) {
+      continue;
+    }
+
+    const source = code.textContent ?? '';
+    const filename = pre.dataset.filename?.trim();
+    const language = pre.dataset.language?.trim().toLowerCase();
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-block';
+
+    const header = document.createElement('div');
+    header.className = 'code-block__header';
+
+    const meta = document.createElement('div');
+    meta.className = 'code-block__meta';
+
+    if (filename) {
+      const filenameLabel = document.createElement('span');
+      filenameLabel.className = 'code-block__filename';
+      filenameLabel.textContent = filename;
+      meta.append(filenameLabel);
+    }
+
+    const languageLabel = document.createElement('span');
+    languageLabel.className = 'code-block__language';
+    languageLabel.textContent = language
+      ? (languageLabels[language] ?? language.toUpperCase())
+      : 'Code';
+    meta.append(languageLabel);
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'code-copy-button';
+    button.textContent = 'Copy';
+    button.setAttribute('aria-label', 'Copy code to clipboard');
+
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(source);
+        button.textContent = 'Copied';
+      } catch {
+        button.textContent = 'Copy failed';
+      }
+
+      window.setTimeout(() => {
+        button.textContent = 'Copy';
+      }, 1600);
+    });
+
+    header.append(meta, button);
+    pre.before(wrapper);
+    wrapper.append(header, pre);
+    pre.dataset.codeEnhanced = 'true';
+  }
+</script>
