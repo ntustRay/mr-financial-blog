@@ -28,7 +28,7 @@ const posts = published.map(({ id, data }) => {
     id, date, market, time: data.pubDate.getTime(), type: getContentType(data.title),
     title: market ? displayTitle.replace(/^\d{4}-\d{2}-\d{2}\s+(台灣|國際)財經[：:]\s*/, '') : displayTitle,
     category: market ? regions[market] : data.category,
-    summary: data.description.split(/(?<=[。！？])/, 1)[0],
+    summary: data.description,
     url: `${base}posts/${id}/`,
   };
 }).sort((a, b) => b.time - a.time || Number(b.market === 'taiwan') - Number(a.market === 'taiwan') || a.id.localeCompare(b.id));
@@ -74,7 +74,8 @@ const activeSeries = seriesDefinitions.filter(series => getSeriesPosts(series.id
                 {leads.has(post.id) && <time class="fh-lead-date" datetime={post.date}>{post.date.replaceAll('-', '.')}</time>}
               </div>
               <h2>{post.title}</h2>
-              {leads.has(post.id) && <div class="fh-summary"><p>{post.summary}</p><span>閱讀文章 <span aria-hidden="true">→</span></span></div>}
+              <p class="fh-summary">{post.summary}</p>
+              {leads.has(post.id) && <span class="fh-read">閱讀文章 <span aria-hidden="true">→</span></span>}
             </div>
           </a>
         ))}
