@@ -41,4 +41,13 @@ Public GitHub Repo + GitHub Pages，main 更新後自動部署。部署 Workflow
 
 留言使用 mr-blog 的既有 public Discussions backend，沿用穩定 `posts/<post.id>` term，保留舊文章的留言。giscus 的允許 origin 設定由 mr-blog 的 `giscus.json` 管理。Private source Repo 不作為公開留言儲存庫。
 
-Busuanzi 計數以 origin 與 URL 為準；搬站前的文章瀏覽數不會自動合併。無法載入時顯示「—」。
+## 公開瀏覽量
+
+公開瀏覽量來自 GA4 的 `screenPageViews`。每日部署會依本站正式網址抓取累計瀏覽量，將數字寫進靜態頁面。報表讀取失敗時沿用已發布的快照，首次同步前顯示「待更新」。`pageviews.json` 只發布本站總量、統計截止日及已發布頁面的瀏覽量。
+
+首次設定：
+
+1. 在 Google Cloud 啟用 Google Analytics Data API，設定 GitHub Actions 的 Workload Identity Federation 和服務帳戶。把可使用該服務帳戶的 GitHub 身分限制在本 repository 的 `main` 部署 workflow。
+2. 在 GA4 的資源存取權管理中給服務帳戶 **Viewer**。
+3. 新增 GitHub Actions repository variables：`GA4_PROPERTY_ID`（GA4 的數字資源 ID）、`GA4_WORKLOAD_IDENTITY_PROVIDER`（完整 provider 路徑）及 `GA4_SERVICE_ACCOUNT`（服務帳戶 Email）。
+4. 執行一次 **Deploy to GitHub Pages**，確認 Refresh public pageviews 成功，且正式首頁、文章頁和一般頁面有數字。

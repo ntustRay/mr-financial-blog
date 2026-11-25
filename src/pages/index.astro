@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ViewCount from '../components/ViewCount.astro';
 import { siteConfig } from '../config/site';
 import { categories } from '../config/taxonomy';
 import { getCategorySlug } from '../utils/categories';
@@ -55,7 +56,10 @@ const activeSeries = seriesDefinitions.filter(series => getSeriesPosts(series.id
   <div class="financial-home" data-feed-size={pageSize}>
     <section id="latest-posts" aria-labelledby="posts-heading">
       <div class="fh-heading">
-        <h1 id="posts-heading">Latest posts</h1>
+        <div>
+          <h1 id="posts-heading">Latest posts</h1>
+          <div class="home-pageviews"><ViewCount scope="site" /></div>
+        </div>
         {markets.length > 0 && (
           <div class="fh-filters" role="group" aria-label="依市場篩選" hidden>
             <button type="button" data-market="all" aria-pressed="true">全部</button>
