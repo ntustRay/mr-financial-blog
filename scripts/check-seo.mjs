@@ -9,6 +9,8 @@ const websiteUrl = new URL(base, origin).href;
 const authorUrl = new URL(`${base}about/`, origin).href;
 const websiteId = `${websiteUrl}#website`;
 const authorId = `${authorUrl}#person`;
+const movedPosts = JSON.parse(await readFile(new URL('../src/config/moved-posts.json', import.meta.url), 'utf8'));
+const movedRoutes = new Map(movedPosts.map(({ id, url }) => [`posts/${id}/index.html`, url]));
 const errors = [];
 const htmlFiles = [];
 
@@ -50,6 +52,15 @@ for (const file of htmlFiles) {
   const route = relative === 'index.html' ? '' : relative.replace(/index\.html$/u, '');
   const expectedUrl = new URL(`${base}${route}`, origin).href;
   const canonical = attribute(extractTag(html, 'link', 'rel', 'canonical'), 'href');
+  const redirectTarget = movedRoutes.get(relative);
+  if (redirectTarget) {
+    const refresh = attribute(extractTag(html, 'meta', 'http-equiv', 'refresh'), 'content');
+    if (canonical !== redirectTarget) errors.push(`${relative}: redirect canonical does not match destination`);
+    if (refresh !== `0;url=${redirectTarget}`) errors.push(`${relative}: missing permanent redirect`);
+    if (sitemapUrls.has(expectedUrl)) errors.push(`${relative}: redirected URL still in sitemap`);
+    movedRoutes.delete(relative);
+    continue;
+  }
   const title = html.match(/<title>([\s\S]*?)<\/title>/iu)?.[1]?.trim();
   const description = attribute(extractTag(html, 'meta', 'name', 'description'), 'content');
   const robots = attribute(extractTag(html, 'meta', 'name', 'robots'), 'content') ?? '';
@@ -116,6 +127,8 @@ for (const file of htmlFiles) {
     errors.push(`${relative}: invalid JSON-LD`);
   }
 }
+
+for (const [relative] of movedRoutes) errors.push(`${relative}: redirect page was not built`);
 
 if (errors.length) {
   console.error(`SEO checks failed (${errors.length}):\n${errors.map((error) => `- ${error}`).join('\n')}`);

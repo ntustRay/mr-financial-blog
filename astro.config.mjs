@@ -1,4 +1,5 @@
 import sitemap from '@astrojs/sitemap';
+import movedPosts from './src/config/moved-posts.json';
 import { defineConfig } from 'astro/config';
 
 const codeBlockMetaTransformer = {
@@ -28,12 +29,16 @@ export default defineConfig({
   site: 'https://ntustray.github.io',
   base: process.env.SITE_BASE ?? '/mr-financial-blog',
   trailingSlash: 'always',
+  redirects: Object.fromEntries(
+    movedPosts.map(({ id, url }) => [`/posts/${id}/`, { status: 301, destination: url }]),
+  ),
   integrations: [
     sitemap({
       filter: (page) => {
         const pathname = new URL(page).pathname;
         const excluded = ['/search/', '/categories/career-life/'];
-        return !excluded.some((path) => pathname.endsWith(path));
+        return !excluded.some((path) => pathname.endsWith(path))
+          && !movedPosts.some(({ id }) => pathname.endsWith(`/posts/${id}/`));
       },
     }),
   ],
