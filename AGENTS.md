@@ -1,9 +1,9 @@
-# Financial
+# MR Financial
 
 ## Project
 
 - Astro + TypeScript static blog copied from `ntustRay/mr-blog`.
-- Author: MingRay, Full-Stack Engineer. Site name: Financial.
+- Author: MingRay, Full-Stack Engineer. Site name: MR Financial.
 - Keep the original mr-blog layout, components, fonts, spacing, responsive rules, and CSS. Only colour values may differ unless explicitly requested.
 - Source repository is public. GitHub Pages serves the public static site.
 - The canonical origin is `https://ntustray.github.io`; `SITE_BASE` defaults to `/mr-financial-blog`.
@@ -12,7 +12,7 @@
 
 - Publish money and life content unrelated to job applications or coding.
 - Job search, interview preparation, programming, and technical tutorials stay in `mr-blog`.
-- The engineer-stock technical series stays in mr-blog. Financial has one user-facing overview and usage guide, linking to that series.
+- The engineer-stock technical series stays in mr-blog. MR Financial has one user-facing overview and usage guide, linking to that series.
 - Do not move an article merely because it mentions money or stocks. Classify by its purpose and actual content.
 - Imported articles retain their filenames, titles, dates, and prose. Category may be mapped to this site's taxonomy. Preserve historical notices.
 - Use exactly one title prefix: `[News]`, `[Guide]`, `[Insight]`, or `[Review]`.

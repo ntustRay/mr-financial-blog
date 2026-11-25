@@ -1,5 +1,7 @@
 export const siteConfig = {
-  name: 'Financial',
+  name: 'MR Financial',
+  byline: '個人財金筆記',
+  peer: { label: 'Coding', url: 'https://ntustray.github.io/mr-blog/' },
   blogId: 'financial',
   author: {
     name: 'MingRay',

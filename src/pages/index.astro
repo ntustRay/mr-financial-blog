@@ -1,100 +1,161 @@
 ---
 import { getCollection } from 'astro:content';
-import CategoryLink from '../components/CategoryLink.astro';
-import TagList from '../components/TagList.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
 import { siteConfig } from '../config/site';
 import { categories } from '../config/taxonomy';
-import { seriesDefinitions } from '../config/series';
-import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCategorySlug } from '../utils/categories';
 import { getContentType, getDisplayTitle } from '../utils/contentType';
-import { formatDate } from '../utils/date';
+import { seriesDefinitions } from '../config/series';
 import { getSeriesPosts } from '../utils/series';
+import '../styles/financial-home.css';
 
-const posts = (await getCollection('blog', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-const latestPosts = posts.slice(0, 6);
-const primaryCategories = categories
-  .filter((category) => category.primary)
-  .map((category) => ({
-    ...category,
-    count: posts.filter((post) => post.data.category === category.name).length,
-  }));
-const activeSeries = seriesDefinitions
-  .map((series) => ({ ...series, count: getSeriesPosts(series.id, posts).length }))
-  .filter((series) => series.count > 0);
+const pageSize = 18;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const regions = { taiwan: '台灣', global: '國際' } as const;
+type Market = keyof typeof regions;
+const calendarDate = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit',
+});
 
-const base = import.meta.env.BASE_URL.endsWith('/')
-  ? import.meta.env.BASE_URL
-  : `${import.meta.env.BASE_URL}/`;
+const published = await getCollection('blog', ({ data }) => !data.draft);
+const posts = published.map(({ id, data }) => {
+  const issue = /^finance-(\d{4}-\d{2}-\d{2})-(taiwan|global)$/.exec(id);
+  const region = issue?.[2];
+  const market: Market | null = region === 'taiwan' || region === 'global' ? region : null;
+  const date = issue?.[1] ?? calendarDate.format(data.pubDate);
+  const displayTitle = getDisplayTitle(data.title);
+  return {
+    id, date, market, time: data.pubDate.getTime(), type: getContentType(data.title),
+    title: market ? displayTitle.replace(/^\d{4}-\d{2}-\d{2}\s+(台灣|國際)財經[：:]\s*/, '') : displayTitle,
+    category: market ? regions[market] : data.category,
+    summary: data.description.split(/(?<=[。！？])/, 1)[0],
+    url: `${base}posts/${id}/`,
+  };
+}).sort((a, b) => b.time - a.time || Number(b.market === 'taiwan') - Number(a.market === 'taiwan') || a.id.localeCompare(b.id));
+
+const dates = new Map<string, Partial<Record<Market, string>>>();
+for (const post of posts) {
+  if (!post.market) continue;
+  const editions = dates.get(post.date) ?? {};
+  editions[post.market] = post.url;
+  dates.set(post.date, editions);
+}
+const dailyRows = [...dates].sort(([a], [b]) => b.localeCompare(a)).slice(0, 5);
+const markets = (['taiwan', 'global'] as const).filter(market => posts.some(post => post.market === market));
+const leads = new Set([posts[0]?.id, ...markets.map(market => posts.find(post => post.market === market)?.id)]);
+const topicIcons: Record<string, string> = {
+  Investing: 'M3 19h18M5 15l4-5 4 2 6-7M15 5h4v4',
+  Housing: 'm3 11 9-7 9 7M5.5 10v10h13V10M10 20v-6h4v6',
+  Life: 'M4 8.5h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM17 9h1.5a2.5 2.5 0 0 1 0 5H17M3 21h16',
+};
+const activeSeries = seriesDefinitions.filter(series => getSeriesPosts(series.id, published).length);
 ---
 
-<BaseLayout title={siteConfig.name} description={siteConfig.description}>
-  <section class="hero">
-    <p class="eyebrow">{siteConfig.eyebrow}</p>
-    <h1>{siteConfig.author.name}</h1>
-    <p class="hero-role">{siteConfig.author.role}</p>
-    <p class="hero-description">{siteConfig.description}</p>
-  </section>
-
-  <section class="home-section" aria-labelledby="topics-heading">
-    <div class="section-heading">
-      <h2 id="topics-heading">Explore Topics</h2>
-      <a class="section-link" href={`${base}categories/`}>All topics →</a>
-    </div>
-    <div class="topic-grid">
-      {primaryCategories.map((category) => (
-        <a class="topic-card" href={`${base}categories/${getCategorySlug(category.name)}/`}>
-          <strong>{category.name}</strong>
-          <span>{category.description}</span>
-          <small>{category.count} posts</small>
-        </a>
-      ))}
-    </div>
-  </section>
-
-  <section id="latest-posts" class="home-section" aria-labelledby="posts-heading">
-    <div class="section-heading">
-      <h2 id="posts-heading">Latest Posts</h2>
-    </div>
-    <div class="post-list">
-      {latestPosts.map((post) => (
-        <article class="post-card">
-          <div class="post-meta">
-            <CategoryLink category={post.data.category} />
-            {getContentType(post.data.title) && (
-              <span class="type-label">{getContentType(post.data.title)}</span>
-            )}
-            <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+<BaseLayout title={siteConfig.name} description={siteConfig.description} wide>
+  <div class="financial-home" data-feed-size={pageSize}>
+    <section id="latest-posts" aria-labelledby="posts-heading">
+      <div class="fh-heading">
+        <h1 id="posts-heading">Latest posts</h1>
+        {markets.length > 0 && (
+          <div class="fh-filters" role="group" aria-label="依市場篩選" hidden>
+            <button type="button" data-market="all" aria-pressed="true">全部</button>
+            {markets.map(market => <button type="button" data-market={market} aria-pressed="false">{regions[market]}日報</button>)}
           </div>
-          <h3><a href={`${base}posts/${post.id}/`}>{getDisplayTitle(post.data.title)}</a></h3>
-          <p>{post.data.description}</p>
-          <TagList tags={post.data.tags} limit={2} />
-        </article>
-      ))}
-    </div>
-  </section>
-
-  {activeSeries.length > 0 && (
-    <section class="home-section" aria-labelledby="series-heading">
-      <div class="section-heading">
-        <h2 id="series-heading">Series</h2>
-        <a class="section-link" href={`${base}series/`}>All series →</a>
+        )}
       </div>
-      <div class="series-grid">
-        {activeSeries.map((series) => (
-          <a class="series-card" href={`${base}series/${series.id}/`}>
-            <strong>{series.title}</strong>
-            <p>{series.description}</p>
-            <small>{series.count} parts</small>
+      <div class="fh-feed">
+        {posts.map((post, index) => (
+          <a class:list={['fh-story', { 'is-lead': index === 0 }]} href={post.url} data-story-market={post.market ?? ''} hidden={index >= pageSize}>
+            <time class="fh-date" datetime={post.date}>{post.date.slice(5).replace('-', '.')}<small>{post.date.slice(0, 4)}</small></time>
+            <div class="fh-story-text">
+              <div class="fh-meta">
+                {post.type && <><span class="fh-type">{post.type}</span><i aria-hidden="true"></i></>}
+                <span>{post.category}</span>
+                {leads.has(post.id) && <time class="fh-lead-date" datetime={post.date}>{post.date.replaceAll('-', '.')}</time>}
+              </div>
+              <h2>{post.title}</h2>
+              {leads.has(post.id) && <div class="fh-summary"><p>{post.summary}</p><span>閱讀文章 <span aria-hidden="true">→</span></span></div>}
+            </div>
           </a>
         ))}
       </div>
+      <div class="fh-foot">
+        <span data-feed-count aria-live="polite">顯示 {Math.min(pageSize, posts.length)} 篇</span>
+        <button type="button" data-feed-more hidden>顯示更多</button>
+        <a href={`${base}archive/`}>瀏覽 Archive <span aria-hidden="true">→</span></a>
+      </div>
     </section>
-  )}
-
-  <nav class="post-list-footer" aria-label="Browse all posts">
-    <span>{posts.length} posts</span>
-    <a href={`${base}archive/`}>View Archive →</a>
-  </nav>
+    <aside id="home-topics" class="fh-side" aria-label="瀏覽財金文章">
+      <section aria-labelledby="topics-heading">
+        <div class="fh-heading"><h2 id="topics-heading">Topics</h2></div>
+        <nav class="fh-topics" aria-label="文章分類">
+          {categories.filter(category => category.primary).map(category => (
+            <a href={`${base}categories/${getCategorySlug(category.name)}/`}>
+              <span class="fh-topic-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d={topicIcons[category.name] ?? 'M3 5h18v14H3z'}/></svg></span>
+              <span>{category.name}</span><span aria-hidden="true" class="fh-next">›</span>
+            </a>
+          ))}
+        </nav>
+      </section>
+      {dailyRows.length > 0 && <section class="fh-editions" aria-labelledby="editions-heading">
+        <h2 id="editions-heading">Daily editions</h2>
+        <table aria-labelledby="editions-heading">
+          <thead><tr><th scope="col">日期</th><th scope="col">台灣</th><th scope="col">國際</th></tr></thead>
+          <tbody>{dailyRows.map(([date, editions]) => (
+            <tr><th scope="row"><time datetime={date}>{date.slice(5).replace('-', '.')}</time></th>
+              {(['taiwan', 'global'] as const).map(market => (
+                <td>{editions[market] ? <a href={editions[market]} aria-label={`${date} ${regions[market]}日報`}>{regions[market]}版</a> : '—'}</td>
+              ))}
+            </tr>
+          ))}</tbody>
+        </table>
+      </section>}
+      {activeSeries.length > 0 && <section aria-label="Series">
+        <div class="fh-heading"><h2>Series</h2></div>
+        <nav class="fh-topics">{activeSeries.map(series => <a href={`${base}series/${series.id}/`}>{series.title}</a>)}</nav>
+      </section>}
+    </aside>
+  </div>
 </BaseLayout>
+
+<script>
+  const home = document.querySelector<HTMLElement>('.financial-home');
+  if (home) {
+    const pageSize = Number(home.dataset.feedSize);
+    const stories = [...home.querySelectorAll<HTMLAnchorElement>('[data-story-market]')];
+    const filters = home.querySelector<HTMLElement>('.fh-filters');
+    const buttons = [...home.querySelectorAll<HTMLButtonElement>('button[data-market]')];
+    const more = home.querySelector<HTMLButtonElement>('[data-feed-more]')!;
+    const count = home.querySelector<HTMLElement>('[data-feed-count]')!;
+    let results = stories;
+    let limit = pageSize;
+
+    function update() {
+      const visible = new Set(results.slice(0, limit));
+      for (const story of stories) {
+        story.hidden = !visible.has(story);
+        story.classList.toggle('is-lead', story === results[0]);
+      }
+      count.textContent = `顯示 ${visible.size} 篇`;
+      more.hidden = visible.size >= results.length;
+    }
+
+    for (const button of buttons) {
+      button.addEventListener('click', () => {
+        const market = button.dataset.market;
+        results = market === 'all' ? stories : stories.filter(story => story.dataset.storyMarket === market);
+        limit = pageSize;
+        for (const option of buttons) option.setAttribute('aria-pressed', String(option === button));
+        update();
+      });
+    }
+    more.addEventListener('click', () => {
+      const next = results[limit];
+      limit += pageSize;
+      update();
+      next?.focus();
+    });
+    if (filters) filters.hidden = false;
+    update();
+  }
+</script>

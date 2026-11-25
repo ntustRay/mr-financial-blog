@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 128 128" role="img" aria-label="MingRay brand icon light">
   <title>MingRay Brand Icon — Light</title>
-  <desc>Light background app icon with MingRay monogram in Navy. Editable SVG.</desc>
+  <desc>Light background app icon with MingRay monogram in Deep Coral. Editable SVG.</desc>
   <style>
-    .bg { fill: #f0f4ef; }
-    .mark { fill: #101e2b; }
-    .accent { fill: #d4b778; }
+    .bg { fill: #FFF3ED; }
+    .mark { fill: #A33E22; }
+    .accent { fill: #FF895F; }
   </style>
   <rect class="bg" x="6" y="6" width="116" height="116" rx="18" />
   <path class="mark" d="M31 35 L60 58 L86 35 L96 35 L96 45 L70 65.5 L70 70 L60 77 L43 63 L43 94 L31 94 Z"/>
