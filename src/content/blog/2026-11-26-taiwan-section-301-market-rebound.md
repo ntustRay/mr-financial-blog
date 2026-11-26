@@ -19,7 +19,7 @@ references:
   - title: "TWSE：信用交易擔保維持率最低標準調降至 120%（2026-11-23）"
     url: "https://www.twse.com.tw/staticFiles/news/news/tsecnews/8a8216d6a19afd9c01a2073bb7af0594.pdf"
   - title: "中央社：台股收漲 956 點站回 39,000 點（2026-11-26）"
-    url: "https://www.cna.com.tw/news/afe/202611260164.aspx"
+    url: "https://www.cna.com.tw/news/afe/202611260144.aspx"
 ---
 
 > 資料截止：**2026-11-26 18:00（Asia/Taipei）**。本文的台股數字是 11 月 26 日台灣集中市場現貨收盤；美國的 Section 301 是 11 月 25 日公布的**擬議**措施，不是已經開始課徵的關稅。
