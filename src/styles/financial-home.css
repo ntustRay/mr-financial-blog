@@ -18,6 +18,13 @@
   border-bottom: 1px solid var(--line);
   padding-bottom: 13px;
 }
+.home-views {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-block: 0 12px;
+}
+
 .fh-heading h1, .fh-side h2 {
   margin: 0;
   color: var(--text-strong);

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ViewCount from '../components/ViewCount.astro';
 import { siteConfig } from '../config/site';
 import { categories } from '../config/taxonomy';
 import { getCategorySlug } from '../utils/categories';
@@ -62,6 +63,10 @@ const activeSeries = seriesDefinitions.filter(series => getSeriesPosts(series.id
             {markets.map(market => <button type="button" data-market={market} aria-pressed="false">{regions[market]}日報</button>)}
           </div>
         )}
+      </div>
+      <div class="home-views">
+        <ViewCount scope="page" label="首頁瀏覽量" />
+        <ViewCount scope="site" />
       </div>
       <div class="fh-feed">
         {posts.map((post, index) => (
