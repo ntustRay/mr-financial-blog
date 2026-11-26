@@ -12,15 +12,15 @@ tags:
 category: Investing
 references:
   - title: "Reuters：新興亞洲市場受晶片股拖累（2026-11-26）"
-    url: "https://www.brecorder.com/news/40450785/asian-stocks-slide-on-chipmakers"
+    url: "https://www.reuters.com/business/ai-stocks-slide-fears-over-infrastructure-buildout-costs-2026-11-25/"
   - title: "Reuters：伊朗稱船隻觸雷後，油市仍面臨供應疑慮（2026-11-26）"
     url: "https://www.reuters.com/business/energy/oil-rises-supply-concerns-iran-claims-mine-strikes-ships-2026-11-26/"
   - title: "EIA：Weekly Petroleum Status Report"
     url: "https://www.eia.gov/petroleum/supply/weekly/"
   - title: "OPEC：2026 年 11 月 29 日部長級會議公告"
     url: "https://www.opec.org/opec_web/en/press_room/0.htm"
-  - title: "中央社：AI 股賣壓加劇，華爾街重新檢視 AI 熱潮財務風險（2026-11-26）"
-    url: "https://www.cna.com.tw/list/ass.aspx"
+  - title: "Reuters：亞洲 AI 賣壓與台灣半導體曝險（2026-11-23）"
+    url: "https://www.reuters.com/commentary/breakingviews/asia-ai-rout-puts-governments-bind-2026-11-23/"
 ---
 
 > 資料截止：**2026-11-26 18:00（Asia/Taipei）**。本文把 11 月 25 日美股時段、11 月 26 日亞洲現貨盤與歐美尚未或未完整收盤的市場狀態分開描述。油價是 Reuters 於 11 月 26 日 09:39 GMT 報導時的期貨報價，不應當作台灣收盤後的即時報價。
