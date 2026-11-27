@@ -24,7 +24,7 @@ references:
     url: "https://www.cna.com.tw/news/afe/202611270129.aspx"
 ---
 
-> 資料截止：**2026-11-27 18:00（Asia/Taipei）**。美國因感恩節休市；文中的 Nasdaq、S&P 500 是 Reuters 報導時點的期貨，不是當日美國現貨收盤。原油為期貨報價，並標出 Reuters 報導時間；不作為即時報價或台灣收盤價。
+> 資料截止：**2026-11-27 18:00（Asia/Taipei）**。美股於美東 11 月 26 日感恩節休市；截至本文截點，週五現貨尚未開盤，縮短盤為台灣時間 11 月 27 日 22:30 至 28 日 02:00（[NYSE 交易日曆](https://www.nyse.com/trade/hours-calendars)）；文中的 Nasdaq、S&P 500 是 Reuters 報導時點的期貨，不是當日美國現貨收盤。原油為期貨報價，並標出 Reuters 報導時間；不作為即時報價或台灣收盤價。
 
 ## 這篇的重點
 
